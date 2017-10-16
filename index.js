@@ -12,9 +12,13 @@ function querify (params) {
   )
 }
 
-function fetch (path, params) {
+async function fetch (path, params) {
   const url = api + path + querify(params)
-  return get(url)
+  const { data, meta } = await get(url).then(JSON.parse)
+  if (meta.status !== 200) {
+    throw new Error(meta.status + ' ' + meta.msg)
+  }
+  return data
 }
 
 module.exports = (id, params) => fetch(id, params)
