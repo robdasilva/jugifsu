@@ -1,5 +1,7 @@
 'use strict'
 
+const get = require('./utils/get')
+
 const api = 'https://api.giphy.com/v1/gifs/'
 
 function querify (params) {
@@ -12,7 +14,7 @@ function querify (params) {
 
 function fetch (path, params) {
   const url = api + path + querify(params)
-  return Promise.resolve(`Fetching from ${url}`)
+  return get(url)
 }
 
 module.exports = (id, params) => fetch(id, params)
