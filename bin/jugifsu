@@ -1,0 +1,17 @@
+#!/usr/bin/env node
+
+'use strict'
+
+/* eslint no-console:off */
+
+const gif = require('../')
+
+const args = process.argv.slice(2)
+const params = {
+  api_key: args.splice(args.indexOf('--api-key'), 2)[1],
+  fmt: args.splice(args.indexOf('--format'), 2)[1]
+}
+const query = args[0]
+
+const gifs = query ? gif.search(query, params) : gif.trending(params)
+gifs.then(console.log).catch(console.error)

@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Get GIFs from Giphy with ease",
   "main": "index.js",
+  "bin": "./bin/jugifsu",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
