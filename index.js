@@ -12,13 +12,24 @@ function querify (params) {
   )
 }
 
+function unify (data) {
+  if (data.constructor === Array) {
+    return data.map(unify)
+  }
+  const { id, images } = data
+  const { url, frames, width, height } = images
+    ? images.original
+    : { url: data.image_url, frames: data.image_frames, width: data.image_width, height: data.image_height }
+  return { id, url, frames, width, height }
+}
+
 async function fetch (path, params) {
   const url = api + path + querify(params)
   const { data, meta } = await get(url).then(JSON.parse)
   if (meta.status !== 200) {
     throw new Error(meta.status + ' ' + meta.msg)
   }
-  return data
+  return unify(data)
 }
 
 module.exports = (id, params) => fetch(id, params)

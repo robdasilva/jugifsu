@@ -4,14 +4,56 @@
 
 /* eslint no-console:off */
 
+const cli = require('commander')
+const fs = require('fs')
+
 const gif = require('../')
 
-const args = process.argv.slice(2)
-const params = {
-  api_key: args.splice(args.indexOf('--api-key'), 2)[1],
-  fmt: args.splice(args.indexOf('--format'), 2)[1]
+function mount (fn) {
+  return async (...args) => {
+    const { parent: { filePath, apiKey: api_key, format: fmt = 'json' } } = args.pop()
+    try {
+      const data = await fn(...args, { api_key, fmt })
+      if (filePath) {
+        fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8')
+      } else {
+        console.log(data)
+      }
+    } catch (error) {
+      console.error(error)
+    }
+  }
 }
-const query = args[0]
 
-const gifs = query ? gif.search(query, params) : gif.trending(params)
-gifs.then(console.log).catch(console.error)
+cli
+  .version('1.0.0')
+  .description('A simple CLI to interact with Giphy')
+  .option('-k, --api-key <key>', 'Giphy API key')
+  .option('-f, --format <format>', 'Giphy API data format')
+  .option('-p, --file-path <path>', 'save output to file')
+
+cli
+  .command('fetch <id>')
+  .alias('*')
+  .description('Get specific GIF by id')
+  .action(mount(gif))
+
+cli
+  .command('random [tag]')
+  .alias('r')
+  .description('Get random GIF by tag')
+  .action(mount(gif.random))
+
+cli
+  .command('search <query>')
+  .alias('s')
+  .description('Search GIFs by query term')
+  .action(mount(gif.search))
+
+cli
+  .command('trending')
+  .alias('t')
+  .description('Get currently trending GIFs')
+  .action(mount(gif.trending))
+
+cli.parse(process.argv)
